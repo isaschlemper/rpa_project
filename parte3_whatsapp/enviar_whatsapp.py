@@ -1,5 +1,6 @@
-import time, os, sys, csv, pyautogui, urllib.parse
+import time, os, sys, csv, pyautogui, urllib.parse, openpyxl, copy
 from datetime import datetime
+from openpyxl.styles import PatternFill
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -13,6 +14,7 @@ ESPERA_WHATSAPP = int(os.getenv("ESPERA_WHATSAPP", 15))
 URL_SISTEMA     = os.getenv("URL_SISTEMA", "http://127.0.0.1:5000")
 NOME_EMPRESA    = os.getenv("NOME_EMPRESA", "TechSolutions Ltda")
 ARQUIVO_ERROS   = "dados/erros.csv"
+ARQUIVO_RELATORIO = "dados/faturas_relatorio.xlsx"
 PASTA_BOLETOS   = "boletos"
 
 sys.path.insert(0, "1parte_web")
@@ -56,27 +58,108 @@ def enviar_whatsapp(driver, fatura):
     driver.get(url)
 
     wait = WebDriverWait(driver, 40)
-    caixa = wait.until(
-        EC.presence_of_element_located((By.XPATH, '//div[@title="Digite uma mensagem"]'))
-    )
-    time.sleep(2)
-    caixa.click()
-    time.sleep(0.5)
-    pyautogui.hotkey("enter")
+    try:
+        btn_enviar = wait.until(
+            EC.element_to_be_clickable((By.XPATH, '//span[@data-icon="send"]/..'))
+        )
+        time.sleep(1)
+        btn_enviar.click()
+    except Exception as e:
+        print("   ⚠️ Usando fallback de Enter via PyAutoGUI...")
+        wait.until(EC.presence_of_element_located((By.ID, 'main')))
+        time.sleep(2)
+        pyautogui.hotkey("enter")
+
     time.sleep(2)
     print(f"   ✅ Enviado para {fatura['nome']}!")
 
+def ler_faturas_excel():
+    if not os.path.exists(ARQUIVO_RELATORIO):
+        print(f"⚠️ Arquivo {ARQUIVO_RELATORIO} não encontrado. Gere o relatório primeiro!")
+        return [], None, None, None, None
+    
+    wb = openpyxl.load_workbook(ARQUIVO_RELATORIO)
+    if "Faturas" not in wb.sheetnames:
+        print(f"⚠️ Aba 'Faturas' não encontrada em {ARQUIVO_RELATORIO}.")
+        return [], wb, None, None, None
+
+    ws = wb["Faturas"]
+    
+    colunas = {}
+    for col in range(1, ws.max_column + 2):
+        val = ws.cell(row=3, column=col).value
+        if val:
+            colunas[val] = col
+            
+    if "Status" not in colunas:
+        print("⚠️ Coluna 'Status' não encontrada na planilha.")
+        return [], wb, ws, None, None
+        
+    faturas = []
+    for row in range(4, ws.max_row + 1):
+        status = ws.cell(row=row, column=colunas["Status"]).value
+        if status and str(status).strip().lower() == "pendente":
+            try:
+                data_vencimento = ws.cell(row=row, column=colunas.get("Vencimento", 6)).value
+                if isinstance(data_vencimento, datetime):
+                    data_vencimento = data_vencimento.strftime("%Y-%m-%d")
+                    
+                fatura = {
+                    "id": ws.cell(row=row, column=colunas.get("ID Fatura", 1)).value,
+                    "nome": ws.cell(row=row, column=colunas.get("Cliente", 2)).value,
+                    "email": ws.cell(row=row, column=colunas.get("E-mail", 3)).value,
+                    "telefone": ws.cell(row=row, column=colunas.get("Telefone", 4)).value,
+                    "valor": ws.cell(row=row, column=colunas.get("Valor (R$)", 5)).value,
+                    "data_vencimento": data_vencimento,
+                    "row_idx": row 
+                }
+                faturas.append(fatura)
+            except Exception as e:
+                print(f"⚠️ Erro ao ler fatura na linha {row}: {e}")
+            
+    if "Data/Hora Envio" not in colunas:
+        nova_col = ws.max_column + 1
+        ws.cell(row=3, column=nova_col, value="Data/Hora Envio")
+        header_base = ws.cell(row=3, column=colunas["Status"])
+        if header_base.has_style:
+            ws.cell(row=3, column=nova_col).font = copy.copy(header_base.font)
+            ws.cell(row=3, column=nova_col).fill = copy.copy(header_base.fill)
+            ws.cell(row=3, column=nova_col).border = copy.copy(header_base.border)
+            ws.cell(row=3, column=nova_col).alignment = copy.copy(header_base.alignment)
+        colunas["Data/Hora Envio"] = nova_col
+        ws.column_dimensions[openpyxl.utils.get_column_letter(nova_col)].width = 20
+
+    return faturas, wb, ws, colunas["Status"], colunas["Data/Hora Envio"]
+
+def atualizar_excel_status(wb, ws, row_idx, col_status, col_data, novo_status, caminho):
+    verde    = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
+    vermelho = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
+    amarelo  = PatternFill(start_color="FFEB9C", end_color="FFEB9C", fill_type="solid")
+    
+    cell_status = ws.cell(row=row_idx, column=col_status)
+    cell_status.value = novo_status.capitalize()
+    
+    cell_data = ws.cell(row=row_idx, column=col_data)
+    cell_data.value = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    
+    fmt = verde if novo_status.lower() == "enviado" else (vermelho if novo_status.lower() == "falhou" else amarelo)
+    
+    for col in range(1, ws.max_column + 1):
+        ws.cell(row=row_idx, column=col).fill = fmt
+        
+    wb.save(caminho)
+
 def main():
     print("=" * 50)
-    print("  📱 RPA - Envio via WhatsApp Web")
+    print("  📱 RPA - Envio via WhatsApp Web (Integrado com Excel)")
     print("=" * 50)
 
-    faturas = listar_faturas_pendentes()
+    faturas, wb, ws, col_status, col_data = ler_faturas_excel()
     if not faturas:
-        print("⚠️  Nenhuma fatura pendente.")
+        print("⚠️  Nenhuma fatura pendente na planilha (ou arquivo vazio).")
         return
 
-    print(f"\n📋 {len(faturas)} fatura(s) para enviar\n")
+    print(f"\n📋 {len(faturas)} fatura(s) pendente(s) lida(s) da planilha Excel.\n")
 
     opcoes = webdriver.ChromeOptions()
     opcoes.add_argument("--start-maximized")
@@ -99,12 +182,18 @@ def main():
             print(f"\n[{i}/{len(faturas)}] {f['nome']} — R$ {f['valor']:.2f}")
             try:
                 enviar_whatsapp(driver, f)
+                # Atualizar DADOS NO BANCO para sincronia
                 atualizar_status_fatura(f["id"], "enviado")
+                # Atualizar EXCEL (Parte 5)
+                atualizar_excel_status(wb, ws, f["row_idx"], col_status, col_data, "Enviado", ARQUIVO_RELATORIO)
                 enviados += 1
             except Exception as e:
                 print(f"   ❌ ERRO: {e}")
                 registrar_erro(f, str(e))
+                # Atualizar DADOS NO BANCO para sincronia
                 atualizar_status_fatura(f["id"], "falhou")
+                # Atualizar EXCEL (Parte 5)
+                atualizar_excel_status(wb, ws, f["row_idx"], col_status, col_data, "Falhou", ARQUIVO_RELATORIO)
                 falhas += 1
             time.sleep(3)
     finally:
@@ -113,6 +202,7 @@ def main():
     print(f"\n{'='*50}")
     print(f"✅ Enviados: {enviados} | ❌ Falhas: {falhas}")
     if falhas: print(f"📄 Erros em: {ARQUIVO_ERROS}")
+    print(f"📊 Planilha atualizada salva em: {ARQUIVO_RELATORIO}")
 
 if __name__ == "__main__":
     main()
