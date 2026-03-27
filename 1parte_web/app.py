@@ -82,8 +82,12 @@ def listar_faturas():
         ORDER BY f.data_vencimento
     """)
     faturas = cur.fetchall()
+    
+    cur.execute("SELECT id, nome FROM clientes ORDER BY nome")
+    clientes = cur.fetchall()
+    
     conn.close()
-    return render_template("faturas.html", faturas=faturas)
+    return render_template("faturas.html", faturas=faturas, clientes=clientes)
 
 @app.route("/faturas/nova", methods=["GET", "POST"])
 def nova_fatura():

@@ -4,32 +4,32 @@
 {% block conteudo %}
 <div class="flex items-center justify-between mb-8">
   <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Faturas Emitidas</h1>
-  <a href="/faturas/nova" class="bg-brand-dark hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm inline-flex items-center gap-2">
+  <button onclick="document.getElementById('modalFatura').classList.remove('hidden')" class="bg-brand-dark hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm inline-flex items-center gap-2">
     <i class="fa-solid fa-plus"></i> Emitir Fatura
-  </a>
+  </button>
 </div>
 
 {% if faturas %}
-<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden box-shadow">
+<div class="bg-white rounded-xl card-shadow border border-slate-100 overflow-hidden">
   <table class="w-full text-left border-collapse">
     <thead>
-      <tr class="border-b border-gray-100 bg-white">
-        <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider border-0 w-[5%]">#</th>
-        <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider border-0 w-[25%]">Cliente</th>
-        <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider border-0 w-[15%]">Valor</th>
-        <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider border-0 w-[15%]">Vencimento</th>
-        <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider border-0 w-[15%]">Emissão</th>
-        <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider border-0 w-[20%] text-center">Status</th>
+      <tr class="border-b border-slate-200 bg-white">
+        <th class="py-4 px-6 text-sm text-slate-500 font-bold uppercase tracking-wider w-[5%]">#</th>
+        <th class="py-4 px-6 text-sm text-slate-500 font-bold uppercase tracking-wider w-[25%]">Cliente</th>
+        <th class="py-4 px-6 text-sm text-slate-500 font-bold uppercase tracking-wider w-[15%]">Valor</th>
+        <th class="py-4 px-6 text-sm text-slate-500 font-bold uppercase tracking-wider w-[15%]">Vencimento</th>
+        <th class="py-4 px-6 text-sm text-slate-500 font-bold uppercase tracking-wider w-[15%]">Emissão</th>
+        <th class="py-4 px-6 text-sm text-slate-500 font-bold uppercase tracking-wider w-[20%] text-center">Status</th>
       </tr>
     </thead>
-    <tbody class="text-sm divide-y divide-gray-100">
+    <tbody class="divide-y divide-slate-100">
       {% for f in faturas %}
-      <tr class="hover:bg-gray-50/50 transition-colors">
-        <td class="py-4 px-6 text-gray-500">{{ f['id'] }}</td>
-        <td class="py-4 px-6 text-gray-800 font-medium">{{ f['nome'] }}</td>
-        <td class="py-4 px-6 text-gray-600 font-medium">R$ {{ "%.2f"|format(f['valor']) }}</td>
-        <td class="py-4 px-6 text-gray-600">{{ f['data_vencimento'] }}</td>
-        <td class="py-4 px-6 text-gray-400 text-xs">{{ f['data_emissao'] }}</td>
+      <tr class="hover:bg-slate-50 transition-colors">
+        <td class="py-4 px-6 text-sm text-slate-500">{{ f['id'] }}</td>
+        <td class="py-4 px-6 text-sm text-slate-800 font-medium">{{ f['nome'] }}</td>
+        <td class="py-4 px-6 text-sm text-slate-600 font-medium">R$ {{ "%.2f"|format(f['valor']) }}</td>
+        <td class="py-4 px-6 text-sm text-slate-600">{{ f['data_vencimento'] }}</td>
+        <td class="py-4 px-6 text-sm text-slate-400">{{ f['data_emissao'] }}</td>
         <td class="py-4 px-6 text-center">
             {% set bg_class = 'bg-emerald-100 text-emerald-800 border bg-status-pago' if f['status'] == 'enviado' else ('bg-red-100 text-red-800 border border-red-200' if f['status'] == 'falhou' else 'bg-amber-100 text-amber-800 border bg-status-pendente') %}
             {% set icon_class = 'fa-check' if f['status'] == 'enviado' else ('fa-xmark' if f['status'] == 'falhou' else 'fa-clock') %}
@@ -50,9 +50,68 @@
   </div>
   <h3 class="text-lg font-semibold text-slate-800 mb-1">Nenhuma fatura emitida</h3>
   <p class="text-slate-500 mb-6">Comece emitindo sua primeira fatura no sistema.</p>
-  <a href="/faturas/nova" class="inline-flex items-center gap-2 bg-brand-dark hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm">
+  <button onclick="document.getElementById('modalFatura').classList.remove('hidden')" class="inline-flex items-center gap-2 bg-brand-dark hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm">
       <i class="fa-solid fa-plus"></i> Emitir Primeira Fatura
-  </a>
+  </button>
 </div>
 {% endif %}
+
+<!-- Modal de Nova Fatura -->
+<div id="modalFatura" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
+      <h2 class="text-xl font-bold text-slate-800">Emitir Nova Fatura</h2>
+      <button onclick="document.getElementById('modalFatura').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 transition-colors">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+    </div>
+    <div class="p-6 overflow-y-auto">
+      <form method="POST" action="/faturas/nova" class="space-y-6">
+        <div>
+          <label for="cliente_id" class="block text-sm font-medium text-slate-700 mb-2">Cliente Associado <span class="text-red-500">*</span></label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fa-regular fa-user text-slate-400"></i>
+            </div>
+            <select id="cliente_id" name="cliente_id" required class="block w-full pl-10 pr-8 py-2.5 border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow sm:text-sm appearance-none bg-white">
+              <option value="" disabled selected>— Escolha o Cliente —</option>
+              {% for c in clientes %}
+              <option value="{{ c['id'] }}">{{ c['nome'] }}</option>
+              {% endfor %}
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+              <i class="fa-solid fa-chevron-down text-xs"></i>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <label for="valor" class="block text-sm font-medium text-slate-700 mb-2">Valor da Fatura (R$) <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-solid fa-dollar-sign text-slate-400"></i>
+              </div>
+              <input type="number" id="valor" name="valor" step="0.01" min="0.01" placeholder="Ex: 350.00" required class="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow sm:text-sm">
+            </div>
+          </div>
+          <div>
+            <label for="data_vencimento" class="block text-sm font-medium text-slate-700 mb-2">Data de Vencimento <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <i class="fa-regular fa-calendar text-slate-400"></i>
+              </div>
+              <input type="date" id="data_vencimento" name="data_vencimento" required class="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow sm:text-sm">
+            </div>
+          </div>
+        </div>
+        <div class="pt-4 mt-6 border-t border-slate-100 flex justify-end gap-3">
+          <button type="button" onclick="document.getElementById('modalFatura').classList.add('hidden')" class="px-5 py-2.5 border border-slate-300 rounded-lg font-medium text-slate-700 text-sm hover:bg-slate-50 transition-colors">Cancelar</button>
+          <button type="submit" class="bg-brand-dark hover:bg-slate-800 text-white px-6 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm flex items-center gap-2">
+            <i class="fa-solid fa-check"></i> Emitir Fatura
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 {% endblock %}
