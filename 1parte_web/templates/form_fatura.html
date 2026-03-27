@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titulo %}Nova Fatura{% endblock %}
+
+{% block conteudo %}
+<div class="card" style="max-width:550px;margin:0 auto;">
+    <h2>📄 Emitir Nova Fatura</h2>
+    <form method="POST" action="/faturas/nova">
+        <div class="form-group">
+            <label>Cliente *</label>
+            <select name="cliente_id" required>
+                <option value="">— Selecione o cliente —</option>
+                {% for c in clientes %}
+                <option value="{{ c['id'] }}">{{ c['nome'] }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Valor (R$) *</label>
+            <input type="number" name="valor" step="0.01" min="0.01" placeholder="Ex: 350.00" required>
+        </div>
+        <div class="form-group">
+            <label>Data de Vencimento *</label>
+            <input type="date" name="data_vencimento" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:10px;">
+            📄 Emitir Fatura
+        </button>
+    </form>
+</div>
+{% endblock %}

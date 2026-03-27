@@ -1,0 +1,42 @@
+
+{% extends "base.html" %}
+{% block titulo %}Faturas{% endblock %}
+
+{% block conteudo %}
+<div class="card">
+    <h2>📄 Faturas Emitidas</h2>
+    <a href="/faturas/nova" class="btn btn-primary" style="margin-bottom:20px;display:inline-block;">
+        ➕ Nova Fatura
+    </a>
+    {% if faturas %}
+    <table>
+        <thead>
+            <tr><th>#</th><th>Cliente</th><th>Valor</th><th>Vencimento</th><th>Emissão</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            {% for f in faturas %}
+            <tr>
+                <td>{{ f['id'] }}</td>
+                <td><strong>{{ f['nome'] }}</strong></td>
+                <td>R$ {{ "%.2f"|format(f['valor']) }}</td>
+                <td>{{ f['data_vencimento'] }}</td>
+                <td>{{ f['data_emissao'] }}</td>
+                <td>
+                    <span class="badge badge-{{ f['status'] }}">
+                        {% if f['status'] == 'pendente' %}⏳
+                        {% elif f['status'] == 'enviado' %}✅
+                        {% else %}❌{% endif %}
+                        {{ f['status'].upper() }}
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:#888;text-align:center;padding:30px;">
+        Nenhuma fatura ainda. <a href="/faturas/nova">Emita a primeira!</a>
+    </p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block titulo %}Novo Cliente{% endblock %}
+
+{% block conteudo %}
+<div class="card" style="max-width:550px;margin:0 auto;">
+    <h2>➕ Cadastrar Novo Cliente</h2>
+    <form method="POST" action="/clientes/novo">
+        <div class="form-group">
+            <label>Nome Completo *</label>
+            <input type="text" name="nome" placeholder="Ex: João da Silva" required>
+        </div>
+        <div class="form-group">
+            <label>E-mail *</label>
+            <input type="email" name="email" placeholder="joao@email.com" required>
+        </div>
+        <div class="form-group">
+            <label>Telefone / WhatsApp * (formato: 5548999999999)</label>
+            <input type="text" name="telefone" placeholder="5548999999999" required>
+        </div>
+        <div class="form-group">
+            <label>Endereço</label>
+            <input type="text" name="endereco" placeholder="Rua, número, cidade">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:10px;">
+            💾 Salvar Cliente
+        </button>
+    </form>
+</div>
+{% endblock %}
