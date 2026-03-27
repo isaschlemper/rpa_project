@@ -1,42 +1,58 @@
-
 {% extends "base.html" %}
-{% block titulo %}Faturas{% endblock %}
+{% block titulo %}Faturas Emitidas{% endblock %}
 
 {% block conteudo %}
-<div class="card">
-    <h2>📄 Faturas Emitidas</h2>
-    <a href="/faturas/nova" class="btn btn-primary" style="margin-bottom:20px;display:inline-block;">
-        ➕ Nova Fatura
-    </a>
-    {% if faturas %}
-    <table>
-        <thead>
-            <tr><th>#</th><th>Cliente</th><th>Valor</th><th>Vencimento</th><th>Emissão</th><th>Status</th></tr>
-        </thead>
-        <tbody>
-            {% for f in faturas %}
-            <tr>
-                <td>{{ f['id'] }}</td>
-                <td><strong>{{ f['nome'] }}</strong></td>
-                <td>R$ {{ "%.2f"|format(f['valor']) }}</td>
-                <td>{{ f['data_vencimento'] }}</td>
-                <td>{{ f['data_emissao'] }}</td>
-                <td>
-                    <span class="badge badge-{{ f['status'] }}">
-                        {% if f['status'] == 'pendente' %}⏳
-                        {% elif f['status'] == 'enviado' %}✅
-                        {% else %}❌{% endif %}
-                        {{ f['status'].upper() }}
-                    </span>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p style="color:#888;text-align:center;padding:30px;">
-        Nenhuma fatura ainda. <a href="/faturas/nova">Emita a primeira!</a>
-    </p>
-    {% endif %}
+<div class="flex items-center justify-between mb-8">
+  <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Faturas Emitidas</h1>
+  <a href="/faturas/nova" class="bg-brand-dark hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm inline-flex items-center gap-2">
+    <i class="fa-solid fa-plus"></i> Emitir Fatura
+  </a>
 </div>
+
+{% if faturas %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden box-shadow">
+  <table class="w-full text-left border-collapse">
+    <thead>
+      <tr class="border-b border-gray-100 bg-white">
+        <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider border-0 w-[5%]">#</th>
+        <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider border-0 w-[25%]">Cliente</th>
+        <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider border-0 w-[15%]">Valor</th>
+        <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider border-0 w-[15%]">Vencimento</th>
+        <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider border-0 w-[15%]">Emissão</th>
+        <th class="py-4 px-6 text-xs font-bold text-gray-500 uppercase tracking-wider border-0 w-[20%] text-center">Status</th>
+      </tr>
+    </thead>
+    <tbody class="text-sm divide-y divide-gray-100">
+      {% for f in faturas %}
+      <tr class="hover:bg-gray-50/50 transition-colors">
+        <td class="py-4 px-6 text-gray-500">{{ f['id'] }}</td>
+        <td class="py-4 px-6 text-gray-800 font-medium">{{ f['nome'] }}</td>
+        <td class="py-4 px-6 text-gray-600 font-medium">R$ {{ "%.2f"|format(f['valor']) }}</td>
+        <td class="py-4 px-6 text-gray-600">{{ f['data_vencimento'] }}</td>
+        <td class="py-4 px-6 text-gray-400 text-xs">{{ f['data_emissao'] }}</td>
+        <td class="py-4 px-6 text-center">
+            {% set bg_class = 'bg-emerald-100 text-emerald-800 border bg-status-pago' if f['status'] == 'enviado' else ('bg-red-100 text-red-800 border border-red-200' if f['status'] == 'falhou' else 'bg-amber-100 text-amber-800 border bg-status-pendente') %}
+            {% set icon_class = 'fa-check' if f['status'] == 'enviado' else ('fa-xmark' if f['status'] == 'falhou' else 'fa-clock') %}
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[0.7rem] font-bold uppercase tracking-wide {{ bg_class }}">
+              <i class="fa-solid {{ icon_class }}"></i>
+              {{ f['status'] }}
+            </span>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="bg-white rounded-xl card-shadow border border-slate-100 p-12 text-center">
+  <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
+    <i class="fa-regular fa-file-lines text-3xl text-slate-300"></i>
+  </div>
+  <h3 class="text-lg font-semibold text-slate-800 mb-1">Nenhuma fatura emitida</h3>
+  <p class="text-slate-500 mb-6">Comece emitindo sua primeira fatura no sistema.</p>
+  <a href="/faturas/nova" class="inline-flex items-center gap-2 bg-brand-dark hover:bg-slate-800 text-white px-5 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm">
+      <i class="fa-solid fa-plus"></i> Emitir Primeira Fatura
+  </a>
+</div>
+{% endif %}
 {% endblock %}

@@ -1,75 +1,111 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TechSolutions — {% block titulo %}Sistema{% endblock %}</title>
-    <style>
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Segoe UI',sans-serif; background:#f0f2f5; color:#333; }
-
-        nav {
-            background: linear-gradient(135deg,#1a237e,#283593);
-            padding: 0 30px;
-            display: flex; align-items: center; gap: 20px;
-            height: 60px; box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>TechSolutions Ltda - {% block titulo %}Dashboard{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#0f172a',
+              darker: '#0b1120',
+              active: '#1e293b',
+              muted: '#94a3b8',
+              light: '#f8fafc',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          }
         }
-        nav .logo { color:white; font-size:1.3rem; font-weight:bold; margin-right:auto; }
-        nav a { color:#b3c5ff; text-decoration:none; padding:8px 16px;
-                border-radius:6px; transition:background .2s; font-size:.9rem; }
-        nav a:hover { background:rgba(255,255,255,.15); color:white; }
-
-        .container { max-width:1100px; margin:30px auto; padding:0 20px; }
-
-        .alerta { padding:12px 20px; border-radius:8px; margin-bottom:20px; font-weight:500; }
-        .alerta.sucesso { background:#e8f5e9; color:#2e7d32; border-left:4px solid #4caf50; }
-        .alerta.erro    { background:#ffebee; color:#c62828; border-left:4px solid #f44336; }
-        .alerta.info    { background:#e3f2fd; color:#1565c0; border-left:4px solid #2196f3; }
-
-        .card { background:white; border-radius:12px; padding:25px;
-                box-shadow:0 2px 12px rgba(0,0,0,.08); margin-bottom:20px; }
-        .card h2 { color:#1a237e; margin-bottom:20px; font-size:1.3rem; }
-
-        table { width:100%; border-collapse:collapse; }
-        th { background:#1a237e; color:white; padding:12px 15px; text-align:left; }
-        td { padding:11px 15px; border-bottom:1px solid #eceff1; }
-        tr:hover td { background:#f5f7fa; }
-
-        .btn { display:inline-block; padding:10px 22px; border-radius:8px; border:none;
-               cursor:pointer; font-size:.9rem; font-weight:600; text-decoration:none;
-               transition:all .2s; }
-        .btn-primary { background:#1a237e; color:white; }
-        .btn-primary:hover { background:#283593; transform:translateY(-1px); }
-        .btn-danger  { background:#f44336; color:white; font-size:.8rem; padding:6px 12px; }
-
-        .form-group { margin-bottom:18px; }
-        label { display:block; margin-bottom:6px; font-weight:600; color:#444; }
-        input, select { width:100%; padding:10px 14px; border:1.5px solid #ddd;
-                        border-radius:8px; font-size:.95rem; }
-        input:focus, select:focus { outline:none; border-color:#1a237e; }
-
-        .badge { padding:4px 10px; border-radius:20px; font-size:.8rem; font-weight:bold; }
-        .badge-pendente { background:#fff3e0; color:#e65100; }
-        .badge-enviado  { background:#e8f5e9; color:#2e7d32; }
-        .badge-falhou   { background:#ffebee; color:#c62828; }
-    </style>
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .card-shadow { box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -1px rgba(0,0,0,0.03); }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 </head>
-<body>
-<nav>
-    <span class="logo">🏢 TechSolutions</span>
-    <a href="/">🏠 Dashboard</a>
-    <a href="/clientes">👥 Clientes</a>
-    <a href="/clientes/novo">➕ Novo Cliente</a>
-    <a href="/faturas">📄 Faturas</a>
-    <a href="/faturas/nova">➕ Nova Fatura</a>
-</nav>
-<div class="container">
-    {% with msgs = get_flashed_messages(with_categories=true) %}
-        {% for cat, msg in msgs %}
-            <div class="alerta {{ cat }}">{{ msg }}</div>
-        {% endfor %}
-    {% endwith %}
-    {% block conteudo %}{% endblock %}
-</div>
+<body class="bg-brand-light text-slate-800 h-screen flex flex-col overflow-hidden">
+  <!-- Topbar -->
+  <header class="bg-brand-dark text-white h-16 flex items-center justify-between px-6 shrink-0 z-20">
+    <div class="flex items-center gap-3 w-64">
+      <div class="w-8 h-8 bg-blue-500 rounded flex items-center justify-center">
+        <i class="fa-solid fa-cube text-white text-lg"></i>
+      </div>
+      <span class="font-semibold text-lg tracking-wide">TechSolutions</span>
+    </div>
+    <!-- Search Bar -->
+    <div class="flex-1 flex justify-center max-w-2xl px-4 hidden md:flex">
+      <div class="relative w-full max-w-md">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <i class="fa-solid fa-magnifying-glass text-slate-400"></i>
+        </div>
+        <input class="block w-full pl-10 pr-3 py-2 border border-transparent rounded-md leading-5 text-slate-300 placeholder-slate-400 focus:outline-none focus:bg-white focus:text-slate-900 focus:ring-0 sm:text-sm bg-slate-800 transition-colors" placeholder="Pesquisar..." type="text"/>
+      </div>
+    </div>
+    <!-- Right Actions -->
+    <div class="flex items-center gap-6">
+      <button class="relative text-slate-300 hover:text-white">
+        <i class="fa-regular fa-bell text-xl"></i>
+        <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-brand-dark"></span>
+      </button>
+      <div class="flex items-center gap-3 cursor-pointer group">
+        <img alt="User" class="h-8 w-8 rounded-full border border-slate-600" src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff"/>
+        <span class="text-sm font-medium text-slate-200 group-hover:text-white">Administrador</span>
+        <i class="fa-solid fa-chevron-down text-xs text-slate-400 group-hover:text-white"></i>
+      </div>
+    </div>
+  </header>
+  
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-brand-dark flex flex-col shrink-0 z-10 border-r border-slate-800">
+      <nav class="flex-1 px-4 py-6 space-y-2">
+        <a href="/" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 {% if request.path == '/' %}bg-slate-800 text-white{% else %}text-brand-muted hover:text-white hover:bg-brand-active{% endif %}">
+          <i class="fa-solid fa-border-all w-5 text-center text-lg"></i>
+          <span class="font-medium text-sm">Dashboard</span>
+        </a>
+        <a href="/clientes" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 {% if '/clientes' in request.path %}bg-slate-800 text-white{% else %}text-brand-muted hover:text-white hover:bg-brand-active{% endif %}">
+          <i class="fa-regular fa-user w-5 text-center text-lg"></i>
+          <span class="font-medium text-sm">Clientes</span>
+        </a>
+        <a href="/faturas" class="flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors duration-200 {% if '/faturas' in request.path %}bg-slate-800 text-white{% else %}text-brand-muted hover:text-white hover:bg-brand-active{% endif %}">
+          <i class="fa-regular fa-file-lines w-5 text-center text-lg"></i>
+          <span class="font-medium text-sm">Faturas</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto p-8 bg-slate-50">
+      <div class="max-w-6xl mx-auto w-full">
+        <!-- Flash Messages -->
+        {% with msgs = get_flashed_messages(with_categories=true) %}
+            {% if msgs %}
+                <div class="space-y-3 mb-6">
+                {% for cat, msg in msgs %}
+                    {% set bg_color = 'bg-emerald-50 border-emerald-200 text-emerald-700' if cat == 'sucesso' else ('bg-red-50 border-red-200 text-red-700' if cat == 'erro' else 'bg-blue-50 border-blue-200 text-blue-700') %}
+                    {% set icon = 'fa-check-circle' if cat == 'sucesso' else ('fa-circle-xmark' if cat == 'erro' else 'fa-circle-info') %}
+                    <div class="border-l-4 p-4 rounded-md {{ bg_color }} shadow-sm flex items-center">
+                        <i class="fa-solid {{ icon }} mr-3 text-lg"></i>
+                        <p class="font-medium text-sm">{{ msg }}</p>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        
+        <!-- Conteudo da página especifica -->
+        {% block conteudo %}{% endblock %}
+      </div>
+    </main>
+  </div>
 </body>
 </html>

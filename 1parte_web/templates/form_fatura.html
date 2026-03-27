@@ -2,29 +2,65 @@
 {% block titulo %}Nova Fatura{% endblock %}
 
 {% block conteudo %}
-<div class="card" style="max-width:550px;margin:0 auto;">
-    <h2>📄 Emitir Nova Fatura</h2>
-    <form method="POST" action="/faturas/nova">
-        <div class="form-group">
-            <label>Cliente *</label>
-            <select name="cliente_id" required>
-                <option value="">— Selecione o cliente —</option>
-                {% for c in clientes %}
-                <option value="{{ c['id'] }}">{{ c['nome'] }}</option>
-                {% endfor %}
-            </select>
+<div class="max-w-2xl mx-auto mt-4">
+  <div class="mb-6 flex items-center gap-3">
+    <a href="/faturas" class="w-10 h-10 bg-white border border-slate-200 rounded-lg flex items-center justify-center text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-colors shadow-sm">
+      <i class="fa-solid fa-arrow-left"></i>
+    </a>
+    <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Emitir Nova Fatura</h1>
+  </div>
+
+  <div class="bg-white rounded-xl card-shadow border border-slate-100 p-8">
+    <form method="POST" action="/faturas/nova" class="space-y-6">
+      
+      <div>
+        <label for="cliente_id" class="block text-sm font-medium text-slate-700 mb-2">Cliente Associado <span class="text-red-500">*</span></label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <i class="fa-regular fa-user text-slate-400"></i>
+          </div>
+          <select id="cliente_id" name="cliente_id" required class="block w-full pl-10 pr-8 py-2.5 border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow sm:text-sm appearance-none bg-white">
+            <option value="" disabled selected>— Escolha o Cliente —</option>
+            {% for c in clientes %}
+            <option value="{{ c['id'] }}">{{ c['nome'] }}</option>
+            {% endfor %}
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-slate-400">
+            <i class="fa-solid fa-chevron-down text-xs"></i>
+          </div>
         </div>
-        <div class="form-group">
-            <label>Valor (R$) *</label>
-            <input type="number" name="valor" step="0.01" min="0.01" placeholder="Ex: 350.00" required>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="valor" class="block text-sm font-medium text-slate-700 mb-2">Valor da Fatura (R$) <span class="text-red-500">*</span></label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fa-solid fa-dollar-sign text-slate-400"></i>
+            </div>
+            <input type="number" id="valor" name="valor" step="0.01" min="0.01" placeholder="Ex: 350.00" required class="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow sm:text-sm">
+          </div>
         </div>
-        <div class="form-group">
-            <label>Data de Vencimento *</label>
-            <input type="date" name="data_vencimento" required>
+
+        <div>
+          <label for="data_vencimento" class="block text-sm font-medium text-slate-700 mb-2">Data de Vencimento <span class="text-red-500">*</span></label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <i class="fa-regular fa-calendar text-slate-400"></i>
+            </div>
+            <input type="date" id="data_vencimento" name="data_vencimento" required class="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow sm:text-sm">
+          </div>
         </div>
-        <button type="submit" class="btn btn-primary" style="width:100%;margin-top:10px;">
-            📄 Emitir Fatura
+      </div>
+
+      <div class="pt-4 mt-6 border-t border-slate-100 flex justify-end gap-3">
+        <a href="/faturas" class="px-5 py-2.5 border border-slate-300 rounded-lg font-medium text-slate-700 text-sm hover:bg-slate-50 transition-colors">Cancelar</a>
+        <button type="submit" class="bg-brand-dark hover:bg-slate-800 text-white px-6 py-2.5 rounded-lg font-medium text-sm transition-colors shadow-sm flex items-center gap-2">
+          <i class="fa-solid fa-check"></i> Emitir Fatura
         </button>
+      </div>
+
     </form>
+  </div>
 </div>
 {% endblock %}
