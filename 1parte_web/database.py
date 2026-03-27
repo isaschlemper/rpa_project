@@ -1,6 +1,7 @@
 import sqlite3
+import os
 
-DB_PATH = "1parte_web/techsolutions.db"
+DB_PATH = os.path.join(os.path.dirname(__file__), "techsolutions.db")
 
 def conectar():
     conn = sqlite3.connect(DB_PATH)
