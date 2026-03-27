@@ -16,7 +16,11 @@ sys.path.insert(0, "1parte_web")
 from database import listar_faturas_pendentes
 
 def gerar_qr_code(fatura):
-    payload = f"PIX|{NOME_EMPRESA}|Fatura#{fatura['id']}|Valor:R${fatura['valor']:.2f}|Venc:{fatura['data_vencimento']}"
+    nome_cliente = str(fatura.get("nome", "")).replace("|", " ").strip()
+    payload = (
+        f"PIX|{NOME_EMPRESA}|Cliente:{nome_cliente}|Fatura#{fatura['id']}"
+        f"|Valor:R${fatura['valor']:.2f}|Venc:{fatura['data_vencimento']}"
+    )
     qr  = qrcode.QRCode(version=2, error_correction=qrcode.constants.ERROR_CORRECT_M, box_size=8, border=2)
     qr.add_data(payload)
     qr.make(fit=True)
