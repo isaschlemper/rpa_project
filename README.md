@@ -396,7 +396,7 @@ python interface/gui.py
 ```
 
 A janela oferece:
-
+git remote add o_meu https://github.com/mariadelfino/rpa_project.git
 | Botão | Ação |
 |---|---|
 | 🌐 Sistema Web | Inicia o servidor Flask |
