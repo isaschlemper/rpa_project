@@ -57,16 +57,25 @@ def enviar_whatsapp(driver, fatura):
     print(f"   🌐 Abrindo WhatsApp para {fatura['nome']} ({telefone})...")
     driver.get(url)
 
+    from selenium.webdriver.common.action_chains import ActionChains
+    from selenium.webdriver.common.keys import Keys
+
     wait = WebDriverWait(driver, 40)
     try:
-        btn_enviar = wait.until(
-            EC.element_to_be_clickable((By.XPATH, '//span[@data-icon="send"]/..'))
-        )
-        time.sleep(1)
-        btn_enviar.click()
-    except Exception as e:
-        print("   ⚠️ Usando fallback de Enter via PyAutoGUI...")
+        # Aguarda a tela principal do chat carregar
         wait.until(EC.presence_of_element_located((By.ID, 'main')))
+        time.sleep(3) # Aguarda a mensagem ser preenchida na caixa de texto
+        
+        # Tenta clicar no botão de enviar primeiramente
+        try:
+            btn_enviar = driver.find_element(By.XPATH, '//button[@aria-label="Enviar"] | //span[@data-icon="send"]/..')
+            btn_enviar.click()
+        except:
+            # Fallback seguro: enviar tecla ENTER pela própria janela do navegador
+            ActionChains(driver).send_keys(Keys.ENTER).perform()
+            
+    except Exception as e:
+        print("   ⚠️ Aviso: Não localizamos o chat, usando fallback de Enter via PyAutoGUI...")
         time.sleep(2)
         pyautogui.hotkey("enter")
 
