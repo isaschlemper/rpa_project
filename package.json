@@ -1,1 +1,11 @@
-
+const pkg = await githubService.getFileContent(MEU_USER_ID, OWNER, REPO, 'package.json', 'main');
+if (pkg) {
+  try {
+    const json = JSON.parse(pkg);
+    console.log("Versão do projeto detectada no package.json:", json.version);
+  } catch (e) {
+    console.error("Arquivo package.json não contém JSON válido:", e.message);
+  }
+} else {
+  console.log("Arquivo package.json não encontrado nesta branch.");
+}
